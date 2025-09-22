@@ -3,7 +3,9 @@ import json
 import os
 
 BASE_URL =  "https://api.scryfall.com/cards/named"
-CACHE_FILE = "VStudioCode\mtg-deck-analyzer\data\cards_cache.json"
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+CACHE_FILE = os.path.join(BASE_DIR, "data", "cards_cache.json")
 
 # Controllo se esiste la mia cache e nel caso la carico per poterla usare
 try:
