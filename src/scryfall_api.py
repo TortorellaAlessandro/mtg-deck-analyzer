@@ -13,8 +13,6 @@ try:
         local_cache = json.load(cache_file)
 except json.JSONDecodeError:
     local_cache = {}
-else:
-    local_cache = {}
 
 def get_card_info(card_name: str) -> dict:
     # Se la carta è gia nella mia cache allora la prendo da lì e basta

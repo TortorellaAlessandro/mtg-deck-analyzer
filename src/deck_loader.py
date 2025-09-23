@@ -6,7 +6,7 @@ def load_deck(filepath: str) -> pd.DataFrame:
     deck = []
     with open(filepath, "r") as decklist:
         for line in decklist:
-            
+
             line = line.strip()
             if not line:
                 continue

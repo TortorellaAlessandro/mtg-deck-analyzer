@@ -1,3 +1,4 @@
+import streamlit as st
 import pandas as pd
 import os
 import sys
@@ -24,20 +25,27 @@ def add_info(deck):
     return cards
 
 if __name__ == "__main__":
-    #Default decklist
-    path = "VStudioCode\mtg-deck-analyzer\data\hakbal.txt"
-    #If given from the terminal will analyze the given path
-    if len(sys.argv) > 1:
-        file_name = sys.argv[1]
+    graphs_ready = False
+
+    st.header("Deck Analyzer")
+
+    input_column, output_column = st.columns(2)
+
+    with input_column:
+        file_name = st.text_input("Insert the name of the .txt file", "hakbal.txt")
         path = os.path.join(BASE_DIR, "data", file_name)
+        if st.button("Load decklist") and file_name: 
+            deck = load_deck(path)
+            enriched_deck = add_info(deck)
 
-    deck = load_deck(path)
-    enriched_deck = add_info(deck)
+            df = pd.DataFrame(enriched_deck)
 
-    df = pd.DataFrame(enriched_deck)
+            curve = mana_curve(df)
+            colors = color_distribution(df)
+            
+            graphs_ready = True
 
-    curve = mana_curve(df)
-    plot_mana_curve(curve)
-
-    colors = color_distribution(df)
-    plot_color_distribution(colors)
+    with output_column:
+        if graphs_ready:
+            st.bar_chart(curve)
+            st.bar_chart(colors)
