@@ -29,23 +29,25 @@ if __name__ == "__main__":
 
     st.header("Deck Analyzer")
 
-    input_column, output_column = st.columns(2)
-
-    with input_column:
-        file_name = st.text_input("Insert the name of the .txt file", "hakbal.txt")
+    file_name = st.text_input("Insert the name of the .txt file", "hakbal.txt")
+    
+    if st.button("Load decklist") and file_name:
         path = os.path.join(BASE_DIR, "data", file_name)
-        if st.button("Load decklist") and file_name: 
-            deck = load_deck(path)
-            enriched_deck = add_info(deck)
+        deck = load_deck(path)
+        enriched_deck = add_info(deck)
 
-            df = pd.DataFrame(enriched_deck)
+        df = pd.DataFrame(enriched_deck)
 
-            curve = mana_curve(df)
-            colors = color_distribution(df)
-            
-            graphs_ready = True
+        curve = mana_curve(df)
+        colors = color_distribution(df)
 
-    with output_column:
+        graphs_ready = True
+
+    tab_curve, tab_colors = st.tabs(["Mana Curve", "Color Distribution"])
+
+    with tab_curve:
         if graphs_ready:
             st.bar_chart(curve)
+    with tab_colors:
+        if graphs_ready:
             st.bar_chart(colors)
