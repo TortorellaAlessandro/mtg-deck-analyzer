@@ -21,3 +21,24 @@ def load_deck(filepath: str) -> pd.DataFrame:
 
             deck.append({"quantity": qty, "name": name})
         return pd.DataFrame(deck)
+    
+def read_deck(decklist: str) -> pd.DataFrame:
+    deck = []
+    cards = decklist.splitlines()
+    for card in cards:
+        card = card.strip()
+        if not card:
+            continue
+        contents = card.split(" ", 1)
+        
+        # Caso in cui ho una riga nel formato "Quantità" "Nome Carta"
+        if len(contents) == 2 and contents[0].isdigit():
+            qty, name = int(contents[0]), contents[1]
+
+        # Caso in cui ho solo il nome della carta e nessuan quantità
+        else:
+            qty, name = 1, card
+        deck.append({"quantity": qty, "name": name})
+    return pd.DataFrame(deck)
+
+#There is still room for optimizations

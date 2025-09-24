@@ -3,10 +3,9 @@ import pandas as pd
 import os
 import sys
 
-from deck_loader import load_deck
+from deck_loader import load_deck, read_deck
 from scryfall_api import get_card_info
 from analyzer import mana_curve, color_distribution
-from visualizer import plot_mana_curve, plot_color_distribution
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -15,6 +14,8 @@ def add_info(deck):
     for _, card in deck.iterrows():
         info = get_card_info(card["name"])
         if "error" not in info:
+            if "colors" not in info:
+                info["colors"] = "Colorless"
             cards.append(
                 {
                     "name": info["name"],
@@ -26,14 +27,30 @@ def add_info(deck):
 
 if __name__ == "__main__":
     graphs_ready = False
+    cards_provided = False
 
     st.header("Deck Analyzer")
 
-    file_name = st.text_input("Insert the name of the .txt file", "hakbal.txt")
+    input_mode = st.selectbox(
+        "Choose the input mode:",
+        ("Card list", "Local txt")
+    )
+
+    if input_mode == "Card list":
+        decklist = st.text_area("Copy decklist here")
+        if st.button("Load decklist") and decklist:
+            deck = read_deck(decklist)
+            cards_provided = True
+
+    elif input_mode == "Local txt":
+        file_name = st.text_input("Insert the name of the .txt file", "hakbal.txt")
     
-    if st.button("Load decklist") and file_name:
-        path = os.path.join(BASE_DIR, "data", file_name)
-        deck = load_deck(path)
+        if st.button("Load decklist") and file_name:
+            path = os.path.join(BASE_DIR, "data", file_name)
+            deck = load_deck(path)
+            cards_provided = True
+
+    if cards_provided:    
         enriched_deck = add_info(deck)
 
         df = pd.DataFrame(enriched_deck)
