@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import os
-import sys
 
 from deck_loader import load_deck, read_deck
 from scryfall_api import get_card_info
@@ -33,7 +32,9 @@ def add_info(deck):
     for _, card in deck.iterrows():
         info = get_card_info(card["name"])
         if "error" not in info:
-            
+            if _ == 0:
+                commander_image_url = info["image_uris"]["png"]
+
             cards.append(
                 {
                     "name": info["name"],
@@ -43,7 +44,7 @@ def add_info(deck):
                     "power/toughness": info.get("power", "-1") + "/" + info.get("toughness", "-1"),
                     "type": determine_card_type(info["type_line"])
                 })
-    return cards
+    return (cards, commander_image_url)
 
 if __name__ == "__main__":
     graphs_ready = False
@@ -53,25 +54,26 @@ if __name__ == "__main__":
 
     input_mode = st.selectbox(
         "Choose the input mode:",
-        ("Card list", "Local txt")
+        ("Card list", "Upload txt")
     )
 
     if input_mode == "Card list":
         decklist = st.text_area("Copy decklist here")
         if st.button("Load decklist") and decklist:
-            deck = read_deck(decklist)
             cards_provided = True
 
-    elif input_mode == "Local txt":
-        file_name = st.text_input("Insert the name of the .txt file", "hakbal.txt")
+    elif input_mode == "Upload txt":
+        uploaded_file = st.file_uploader("Upload .txt decklist", ["txt"])
     
-        if st.button("Load decklist") and file_name:
-            path = os.path.join(BASE_DIR, "data", file_name)
-            deck = load_deck(path)
+        if st.button("Load decklist") and uploaded_file is not None:
+            decklist = uploaded_file.read().decode("utf-8")
             cards_provided = True
 
     if cards_provided:    
-        enriched_deck = add_info(deck)
+        deck = read_deck(decklist)
+        enriched_deck, commander_image_url = add_info(deck)
+
+        st.sidebar.image(commander_image_url)
 
         df = pd.DataFrame(enriched_deck)
 
