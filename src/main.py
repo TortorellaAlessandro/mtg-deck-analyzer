@@ -72,12 +72,11 @@ if __name__ == "__main__":
     if cards_provided:    
         deck = read_deck(decklist)
         enriched_deck, commander_image_url = add_info(deck)
-
-        st.sidebar.image(commander_image_url)
-
         df = pd.DataFrame(enriched_deck)
 
-        graphs_ready = True
+        st.session_state["info"] = (df, enriched_deck, commander_image_url)
+        
+        st.switch_page("pages/analysis_page.py")
 
     tab_curve, tab_colors, tab_type, tab_stats = st.tabs(["Mana Curve", "Color Distribution","Type Distribution", "Stats Distribution"])
     if graphs_ready:
